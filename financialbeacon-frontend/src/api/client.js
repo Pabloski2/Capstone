@@ -1,4 +1,6 @@
-const BASE_URL = "http://localhost:8080/api";
+// Usa el mismo host desde el que se cargó la página: funciona tanto en
+// localhost (PC) como cuando se abre desde el celular usando la IP del PC.
+const BASE_URL = `http://${window.location.hostname}:8080/api`;
 
 async function manejarRespuesta(res) {
   const data = await res.json().catch(() => null);
@@ -46,4 +48,27 @@ export const api = {
     fetch(`${BASE_URL}/finanzas/gastos?userId=${userId}&mes=${mes}&anio=${anio}`).then(
       manejarRespuesta
     ),
+
+  registrarDeuda: (userId, nombre, montoTotal, tasaInteres, cuotaMinima) =>
+    fetch(`${BASE_URL}/deudas`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, nombre, montoTotal, tasaInteres, cuotaMinima }),
+    }).then(manejarRespuesta),
+
+  listarDeudas: (userId) =>
+    fetch(`${BASE_URL}/deudas?userId=${userId}`).then(manejarRespuesta),
+
+  obtenerEstrategia: (userId, mes, anio) =>
+    fetch(`${BASE_URL}/deudas/estrategia?userId=${userId}&mes=${mes}&anio=${anio}`).then(
+      manejarRespuesta
+    ),
+
+  // metaAhorro es opcional: si viene, el backend agrega un plan para alcanzarla.
+  obtenerRecomendaciones: (userId, mes, anio, metaAhorro) => {
+    const meta = metaAhorro ? `&metaAhorro=${encodeURIComponent(metaAhorro)}` : "";
+    return fetch(
+      `${BASE_URL}/recomendaciones?userId=${userId}&mes=${mes}&anio=${anio}${meta}`
+    ).then(manejarRespuesta);
+  },
 };

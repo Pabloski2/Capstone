@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client.js";
+import BarraNavegacion from "../components/BarraNavegacion.jsx";
+import ListaRecomendaciones from "../components/ListaRecomendaciones.jsx";
+import { formatoCLP } from "../utils/formato.js";
 
 const CATEGORIAS = ["FIJO", "VARIABLE", "HORMIGA"];
 
@@ -9,21 +12,18 @@ function hoy() {
   return { mes: d.getMonth() + 1, anio: d.getFullYear(), fechaISO: d.toISOString().slice(0, 10) };
 }
 
-function formatoCLP(valor) {
-  return new Intl.NumberFormat("es-CL", {
-    style: "currency",
-    currency: "CLP",
-    maximumFractionDigits: 0,
-  }).format(valor || 0);
-}
-
 export default function Dashboard() {
   const navigate = useNavigate();
   const usuario = JSON.parse(localStorage.getItem("fb_user") || "{}");
   const { mes, anio, fechaISO } = hoy();
 
+  const claveMeta = `fb_meta_${usuario.id}`;
+
   const [resumen, setResumen] = useState(null);
   const [gastos, setGastos] = useState([]);
+  const [recomendaciones, setRecomendaciones] = useState([]);
+  const [meta, setMeta] = useState(() => localStorage.getItem(claveMeta) || "");
+  const [metaInput, setMetaInput] = useState(() => localStorage.getItem(claveMeta) || "");
   const [montoIngreso, setMontoIngreso] = useState("");
   const [nuevoGasto, setNuevoGasto] = useState({
     descripcion: "",
@@ -34,15 +34,17 @@ export default function Dashboard() {
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(true);
 
-  async function cargarDatos() {
-    setCargando(true);
+  async function cargarDatos(metaActual = meta) {
     try {
-      const [r, g] = await Promise.all([
+      const [r, g, recs] = await Promise.all([
         api.obtenerResumen(usuario.id, mes, anio),
         api.listarGastos(usuario.id, mes, anio),
+        // Si las recomendaciones fallan, el resto del dashboard igual se muestra.
+        api.obtenerRecomendaciones(usuario.id, mes, anio, metaActual).catch(() => []),
       ]);
       setResumen(r);
       setGastos(g);
+      setRecomendaciones(recs);
     } catch (err) {
       setError(err.message || "No se pudo cargar la información");
     } finally {
@@ -58,6 +60,18 @@ export default function Dashboard() {
     cargarDatos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function guardarMeta(e) {
+    e.preventDefault();
+    const nueva = metaInput.trim();
+    if (nueva) {
+      localStorage.setItem(claveMeta, nueva);
+    } else {
+      localStorage.removeItem(claveMeta);
+    }
+    setMeta(nueva);
+    await cargarDatos(nueva);
+  }
 
   async function guardarIngreso(e) {
     e.preventDefault();
@@ -89,23 +103,21 @@ export default function Dashboard() {
     }
   }
 
-  function cerrarSesion() {
-    localStorage.removeItem("fb_user");
-    navigate("/login");
-  }
-
   if (cargando) {
     return (
       <div className="pantalla-centrada">
-        <p>Cargando...</p>
+        <p>Cargando tu resumen...</p>
       </div>
     );
   }
 
+  const ahorroPositivo = (resumen?.ahorroEstimado ?? 0) >= 0;
+
   return (
-    <div className="contenedor-dashboard">
-      <header className="encabezado-dashboard">
-        <div>
+    <>
+      <BarraNavegacion paginaActiva="dashboard" />
+      <div className="contenedor-dashboard">
+        <header className="encabezado-dashboard">
           <h1>Hola, {usuario.nombre}</h1>
           <p className="subtitulo">
             {new Date(anio, mes - 1).toLocaleDateString("es-CL", {
@@ -113,145 +125,182 @@ export default function Dashboard() {
               year: "numeric",
             })}
           </p>
-        </div>
-        <button className="boton-secundario" onClick={cerrarSesion}>
-          Cerrar sesión
-        </button>
-      </header>
+        </header>
 
-      {error && <div className="mensaje-error">{error}</div>}
+        {error && <div className="mensaje-error">{error}</div>}
 
-      <section className="grid-resumen">
-        <div className="tarjeta-metrica">
-          <span className="etiqueta-metrica">Ingreso del mes</span>
-          <span className="valor-metrica">{formatoCLP(resumen?.ingresoMensual)}</span>
+        <div className="metrica-hero">
+          <span className="etiqueta-metrica">
+            {ahorroPositivo ? "Ahorro estimado este mes" : "Estás sobre tu ingreso este mes"}
+          </span>
+          <div className="valor-metrica">{formatoCLP(resumen?.ahorroEstimado)}</div>
+          <p className="nota-metrica">
+            Ingreso {formatoCLP(resumen?.ingresoMensual)} · Gastos{" "}
+            {formatoCLP(resumen?.totalGastos)}
+          </p>
         </div>
-        <div className="tarjeta-metrica">
-          <span className="etiqueta-metrica">Gastos fijos</span>
-          <span className="valor-metrica">{formatoCLP(resumen?.totalGastosFijos)}</span>
-        </div>
-        <div className="tarjeta-metrica">
-          <span className="etiqueta-metrica">Gastos variables</span>
-          <span className="valor-metrica">{formatoCLP(resumen?.totalGastosVariables)}</span>
-        </div>
-        <div className="tarjeta-metrica">
-          <span className="etiqueta-metrica">Gastos hormiga</span>
-          <span className="valor-metrica">{formatoCLP(resumen?.totalGastosHormiga)}</span>
-        </div>
-        <div className={`tarjeta-metrica ${resumen?.ahorroEstimado < 0 ? "metrica-negativa" : "metrica-positiva"}`}>
-          <span className="etiqueta-metrica">Ahorro estimado</span>
-          <span className="valor-metrica">{formatoCLP(resumen?.ahorroEstimado)}</span>
-        </div>
-      </section>
 
-      <section className="grid-formularios">
-        <div className="tarjeta">
-          <h2>Ingreso mensual</h2>
-          <form onSubmit={guardarIngreso}>
+        <section className="grid-resumen">
+          <div className="tarjeta-metrica">
+            <span className="etiqueta-metrica">
+              <span className="punto-categoria" style={{ background: "var(--navy-800)" }} />
+              Gastos fijos
+            </span>
+            <span className="valor-metrica">{formatoCLP(resumen?.totalGastosFijos)}</span>
+          </div>
+          <div className="tarjeta-metrica">
+            <span className="etiqueta-metrica">
+              <span className="punto-categoria" style={{ background: "var(--amber-600)" }} />
+              Gastos variables
+            </span>
+            <span className="valor-metrica">{formatoCLP(resumen?.totalGastosVariables)}</span>
+          </div>
+          <div className="tarjeta-metrica">
+            <span className="etiqueta-metrica">
+              <span className="punto-categoria" style={{ background: "#7c3a9c" }} />
+              Gastos hormiga
+            </span>
+            <span className="valor-metrica">{formatoCLP(resumen?.totalGastosHormiga)}</span>
+          </div>
+        </section>
+
+        <ListaRecomendaciones
+          recomendaciones={recomendaciones}
+          filtro={(r) => r.tipo === "AHORRO" || r.nivel === "ALERTA"}
+          titulo="Recomendaciones para ti"
+          vacio="Por ahora no hay recomendaciones. Sigue registrando tus gastos."
+        >
+          <form className="meta-ahorro" onSubmit={guardarMeta}>
             <div className="campo">
-              <label htmlFor="ingreso">Monto ($)</label>
+              <label htmlFor="meta">Mi meta de ahorro mensual ($)</label>
               <input
-                id="ingreso"
+                id="meta"
                 type="number"
                 min="0"
-                value={montoIngreso}
-                onChange={(e) => setMontoIngreso(e.target.value)}
-                placeholder={resumen?.ingresoMensual ? String(resumen.ingresoMensual) : "0"}
-                required
+                value={metaInput}
+                onChange={(e) => setMetaInput(e.target.value)}
+                placeholder="Ej: 150000 (vacío = sin meta)"
               />
             </div>
-            <button className="boton-primario" type="submit">
-              Guardar ingreso
+            <button className="boton-secundario" type="submit">
+              {meta ? "Actualizar meta" : "Fijar meta"}
             </button>
           </form>
-        </div>
+        </ListaRecomendaciones>
 
-        <div className="tarjeta">
-          <h2>Nuevo gasto</h2>
-          <form onSubmit={agregarGasto}>
-            <div className="campo">
-              <label htmlFor="descripcion">Descripción</label>
-              <input
-                id="descripcion"
-                type="text"
-                value={nuevoGasto.descripcion}
-                onChange={(e) => setNuevoGasto({ ...nuevoGasto, descripcion: e.target.value })}
-                required
-              />
-            </div>
-            <div className="campo">
-              <label htmlFor="montoGasto">Monto ($)</label>
-              <input
-                id="montoGasto"
-                type="number"
-                min="0"
-                value={nuevoGasto.monto}
-                onChange={(e) => setNuevoGasto({ ...nuevoGasto, monto: e.target.value })}
-                required
-              />
-            </div>
-            <div className="campo">
-              <label htmlFor="categoria">Categoría</label>
-              <select
-                id="categoria"
-                value={nuevoGasto.categoria}
-                onChange={(e) => setNuevoGasto({ ...nuevoGasto, categoria: e.target.value })}
-              >
-                {CATEGORIAS.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="campo">
-              <label htmlFor="fecha">Fecha</label>
-              <input
-                id="fecha"
-                type="date"
-                value={nuevoGasto.fecha}
-                onChange={(e) => setNuevoGasto({ ...nuevoGasto, fecha: e.target.value })}
-                required
-              />
-            </div>
-            <button className="boton-primario" type="submit">
-              Agregar gasto
-            </button>
-          </form>
-        </div>
-      </section>
+        <section className="grid-formularios">
+          <div className="tarjeta">
+            <h2>Ingreso mensual</h2>
+            <form onSubmit={guardarIngreso}>
+              <div className="campo">
+                <label htmlFor="ingreso">Monto ($)</label>
+                <input
+                  id="ingreso"
+                  type="number"
+                  min="0"
+                  value={montoIngreso}
+                  onChange={(e) => setMontoIngreso(e.target.value)}
+                  placeholder={resumen?.ingresoMensual ? String(resumen.ingresoMensual) : "0"}
+                  required
+                />
+              </div>
+              <button className="boton-primario" type="submit">
+                Guardar ingreso
+              </button>
+            </form>
+          </div>
 
-      <section className="tarjeta">
-        <h2>Gastos del mes</h2>
-        {gastos.length === 0 ? (
-          <p className="subtitulo">Todavía no registras gastos este mes.</p>
-        ) : (
-          <table className="tabla-gastos">
-            <thead>
-              <tr>
-                <th>Descripción</th>
-                <th>Categoría</th>
-                <th>Fecha</th>
-                <th>Monto</th>
-              </tr>
-            </thead>
-            <tbody>
-              {gastos.map((g) => (
-                <tr key={g.id}>
-                  <td>{g.descripcion}</td>
-                  <td>
-                    <span className={`etiqueta-categoria etiqueta-${g.categoria.toLowerCase()}`}>
-                      {g.categoria}
-                    </span>
-                  </td>
-                  <td>{g.fecha}</td>
-                  <td>{formatoCLP(g.monto)}</td>
+          <div className="tarjeta">
+            <h2>Nuevo gasto</h2>
+            <form onSubmit={agregarGasto}>
+              <div className="campo">
+                <label htmlFor="descripcion">Descripción</label>
+                <input
+                  id="descripcion"
+                  type="text"
+                  value={nuevoGasto.descripcion}
+                  onChange={(e) => setNuevoGasto({ ...nuevoGasto, descripcion: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="campo">
+                <label htmlFor="montoGasto">Monto ($)</label>
+                <input
+                  id="montoGasto"
+                  type="number"
+                  min="0"
+                  value={nuevoGasto.monto}
+                  onChange={(e) => setNuevoGasto({ ...nuevoGasto, monto: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="campo">
+                <label htmlFor="categoria">Categoría</label>
+                <select
+                  id="categoria"
+                  value={nuevoGasto.categoria}
+                  onChange={(e) => setNuevoGasto({ ...nuevoGasto, categoria: e.target.value })}
+                >
+                  {CATEGORIAS.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="campo">
+                <label htmlFor="fecha">Fecha</label>
+                <input
+                  id="fecha"
+                  type="date"
+                  value={nuevoGasto.fecha}
+                  onChange={(e) => setNuevoGasto({ ...nuevoGasto, fecha: e.target.value })}
+                  required
+                />
+              </div>
+              <button className="boton-primario" type="submit">
+                Agregar gasto
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <section className="tarjeta">
+          <h2>Gastos del mes</h2>
+          {gastos.length === 0 ? (
+            <p className="estado-vacio">
+              Todavía no registras gastos este mes. Agrega el primero arriba
+              para empezar a ver tu resumen.
+            </p>
+          ) : (
+            <table className="tabla-gastos">
+              <thead>
+                <tr>
+                  <th>Descripción</th>
+                  <th>Categoría</th>
+                  <th>Fecha</th>
+                  <th>Monto</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
-    </div>
+              </thead>
+              <tbody>
+                {gastos.map((g) => (
+                  <tr key={g.id}>
+                    <td>{g.descripcion}</td>
+                    <td>
+                      <span className={`etiqueta-categoria etiqueta-${g.categoria.toLowerCase()}`}>
+                        <span className="punto-categoria" />
+                        {g.categoria}
+                      </span>
+                    </td>
+                    <td>{g.fecha}</td>
+                    <td>{formatoCLP(g.monto)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
+      </div>
+    </>
   );
 }

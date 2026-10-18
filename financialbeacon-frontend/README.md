@@ -1,4 +1,4 @@
-# Financial Beacon - Frontend (Paso 4-5: Login + Registro + Dashboard)
+# Financial Beacon - Frontend (Paso 4-6: Login + Registro + Dashboard + Deudas)
 
 ## Requisitos
 
@@ -26,11 +26,16 @@
 3. Prueba cargar un ingreso, agregar un par de gastos con distintas categorías y confirma que el "Ahorro estimado" se actualiza solo.
 4. Dale a "Cerrar sesión" y prueba el login en `http://localhost:5173/login` con esa misma cuenta — el Dashboard debería mostrar los mismos datos que cargaste (persisten en la base de datos del backend).
 
-## Ver la app en el celular (mismo WiFi)
+## Ver la app en el celular e instalarla como aplicación (PWA)
 
-1. Con `npm run dev` corriendo, busca la IP local de tu compu: `ipconfig` en PowerShell, busca "Dirección IPv4" (algo como `192.168.1.X`).
-2. En el celular, conectado a la misma red WiFi, entra a `http://192.168.1.X:5173` en el navegador.
-3. Ojo: el login no va a funcionar desde el celular todavía, porque el backend solo acepta peticiones de `http://localhost:5173` (ver `@CrossOrigin` en los controllers). Lo ajustamos cuando lleguemos al paso de despliegue/pruebas en celular.
+1. Levanta el backend (`F5` en VS Code) y el frontend (`npm run dev`) como siempre, en tu PC.
+2. Busca la IP local de tu PC: en PowerShell, `ipconfig`, busca "Dirección IPv4" (algo como `192.168.1.X`). Debe ser la misma red WiFi en tu celular y tu PC.
+3. En el celular, abre el navegador (Chrome en Android, Safari en iPhone) y entra a `http://192.168.1.X:5173` (con tu IP real).
+4. **Android (Chrome):** te va a aparecer un aviso o un ícono de menú (⋮) con la opción **"Instalar app"** o **"Añadir a pantalla de inicio"**. Tócalo.
+5. **iPhone (Safari):** toca el botón de compartir (el cuadrado con la flecha hacia arriba) → **"Añadir a pantalla de inicio"**.
+6. Va a quedar un ícono de Financial Beacon en tu pantalla de inicio. Al abrirlo, carga en pantalla completa, sin barra de navegador — se ve y se siente como una app instalada.
+
+**Importante:** el backend y el frontend tienen que seguir corriendo en tu PC para que la app del celular funcione (no es una app 100% independiente todavía, depende de tu PC como servidor). Si cambias de red WiFi, la IP cambia y hay que reinstalar apuntando a la IP nueva.
 
 ## Siguiente paso
 

@@ -1,0 +1,104 @@
+/* Recomendaciones (mensajes / notificaciones).
+   Usa las variables de color y tipografía definidas en src/index.css */
+
+.seccion-recomendaciones {
+  margin-bottom: 24px;
+}
+
+.titulo-seccion {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.lista-recomendaciones {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recomendacion-item {
+  display: flex;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--radio-m);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-left-width: 5px;
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.recomendacion-item h3 {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.recomendacion-item p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--tinta-suave);
+  white-space: pre-line; /* respeta los saltos de línea del plan de ahorro */
+}
+
+.recomendacion-icono {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fuente-display);
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.recomendacion-alerta { border-left-color: var(--rojo-600); }
+.recomendacion-alerta .recomendacion-icono { background: var(--rojo-100); color: var(--rojo-600); }
+
+.recomendacion-aviso { border-left-color: var(--amber-500); }
+.recomendacion-aviso .recomendacion-icono { background: var(--amber-100); color: var(--amber-600); }
+
+.recomendacion-info { border-left-color: var(--navy-700); }
+.recomendacion-info .recomendacion-icono { background: var(--navy-100); color: var(--navy-800); }
+
+.recomendacion-positivo { border-left-color: var(--verde-600); }
+.recomendacion-positivo .recomendacion-icono { background: var(--verde-100); color: var(--verde-600); }
+
+.chip-ahorro {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--verde-100);
+  color: #157347;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Meta de ahorro */
+.meta-ahorro {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.meta-ahorro .campo {
+  margin: 0;
+  flex: 1;
+  min-width: 220px;
+}
