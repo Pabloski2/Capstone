@@ -5,6 +5,8 @@ import BarraNavegacion from "../components/BarraNavegacion.jsx";
 import ListaRecomendaciones from "../components/ListaRecomendaciones.jsx";
 import { formatoCLP } from "../utils/formato.js";
 
+const TASA_ALTA = 30; // % anual: desde aquí se resalta en rojo
+
 function hoy() {
   const d = new Date();
   return { mes: d.getMonth() + 1, anio: d.getFullYear() };
@@ -86,6 +88,17 @@ export default function DebtManager() {
     );
   }
 
+  // Métricas calculadas a partir de las deudas registradas.
+  const deudaTotal = deudas.reduce((s, d) => s + Number(d.montoTotal || 0), 0);
+  const cuotasMinimas = deudas.reduce((s, d) => s + Number(d.cuotaMinima || 0), 0);
+  const interesMensual = deudas.reduce(
+    (s, d) => s + (Number(d.montoTotal || 0) * Number(d.tasaInteres || 0)) / 100 / 12,
+    0
+  );
+
+  const orden = estrategia?.ordenDePago || [];
+  const saldoMaximo = Math.max(...orden.map((d) => Number(d.montoTotal || 0)), 1);
+
   return (
     <>
       <BarraNavegacion paginaActiva="deudas" />
@@ -96,6 +109,23 @@ export default function DebtManager() {
         </header>
 
         {error && <div className="mensaje-error">{error}</div>}
+
+        {deudas.length > 0 && (
+          <section className="grid-resumen">
+            <div className="tarjeta-metrica">
+              <span className="etiqueta-metrica">Deuda total</span>
+              <span className="valor-metrica">{formatoCLP(deudaTotal)}</span>
+            </div>
+            <div className="tarjeta-metrica">
+              <span className="etiqueta-metrica">Cuotas mínimas al mes</span>
+              <span className="valor-metrica">{formatoCLP(cuotasMinimas)}</span>
+            </div>
+            <div className="tarjeta-metrica">
+              <span className="etiqueta-metrica">Intereses al mes (aprox.)</span>
+              <span className="valor-metrica metrica-negativa">{formatoCLP(interesMensual)}</span>
+            </div>
+          </section>
+        )}
 
         {estrategia && estrategia.estrategiaRecomendada !== "SIN_DEUDAS" && (
           <section className="tarjeta tarjeta-estrategia">
@@ -145,6 +175,7 @@ export default function DebtManager() {
                   id="montoTotal"
                   type="number"
                   min="0"
+                  inputMode="numeric"
                   value={nuevaDeuda.montoTotal}
                   onChange={(e) => setNuevaDeuda({ ...nuevaDeuda, montoTotal: e.target.value })}
                   required
@@ -157,6 +188,7 @@ export default function DebtManager() {
                   type="number"
                   min="0"
                   step="0.1"
+                  inputMode="decimal"
                   value={nuevaDeuda.tasaInteres}
                   onChange={(e) => setNuevaDeuda({ ...nuevaDeuda, tasaInteres: e.target.value })}
                   required
@@ -168,6 +200,7 @@ export default function DebtManager() {
                   id="cuotaMinima"
                   type="number"
                   min="0"
+                  inputMode="numeric"
                   value={nuevaDeuda.cuotaMinima}
                   onChange={(e) => setNuevaDeuda({ ...nuevaDeuda, cuotaMinima: e.target.value })}
                   required
@@ -181,18 +214,28 @@ export default function DebtManager() {
 
           <div className="tarjeta">
             <h2>Orden de pago sugerido</h2>
-            {!estrategia || estrategia.ordenDePago.length === 0 ? (
+            {orden.length === 0 ? (
               <p className="estado-vacio">Registra al menos una deuda para ver el plan de pago.</p>
             ) : (
               <ol className="lista-orden-pago">
-                {estrategia.ordenDePago.map((d, i) => (
+                {orden.map((d, i) => (
                   <li key={d.deudaId}>
                     <div className="fila-orden-pago">
                       <span className="numero-orden">{i + 1}</span>
-                      <div>
+                      <div className="cuerpo-orden">
                         <strong>{d.nombre}</strong>
                         <div className="detalle-orden-pago">
-                          Tasa {d.tasaInteres}% · Saldo {formatoCLP(d.montoTotal)}
+                          <span className={`chip-tasa${Number(d.tasaInteres) >= TASA_ALTA ? " alta" : ""}`}>
+                            Tasa {d.tasaInteres}%
+                          </span>
+                          <span>Saldo {formatoCLP(d.montoTotal)}</span>
+                        </div>
+                        <div
+                          className="pista pista-deuda"
+                          role="img"
+                          aria-label={`Saldo de ${d.nombre}: ${formatoCLP(d.montoTotal)}`}
+                        >
+                          <span style={{ width: `${(Number(d.montoTotal) / saldoMaximo) * 100}%` }} />
                         </div>
                       </div>
                       <span className="pago-sugerido">{formatoCLP(d.pagoSugeridoEsteMes)}</span>
@@ -209,7 +252,7 @@ export default function DebtManager() {
           {deudas.length === 0 ? (
             <p className="estado-vacio">Todavía no registras deudas.</p>
           ) : (
-            <table className="tabla-gastos">
+            <table className="tabla-gastos tabla-deudas">
               <thead>
                 <tr>
                   <th>Nombre</th>
@@ -221,10 +264,10 @@ export default function DebtManager() {
               <tbody>
                 {deudas.map((d) => (
                   <tr key={d.id}>
-                    <td>{d.nombre}</td>
-                    <td>{formatoCLP(d.montoTotal)}</td>
-                    <td>{d.tasaInteres}%</td>
-                    <td>{formatoCLP(d.cuotaMinima)}</td>
+                    <td data-label="Nombre">{d.nombre}</td>
+                    <td data-label="Monto total">{formatoCLP(d.montoTotal)}</td>
+                    <td data-label="Tasa interés">{d.tasaInteres}%</td>
+                    <td data-label="Cuota mínima">{formatoCLP(d.cuotaMinima)}</td>
                   </tr>
                 ))}
               </tbody>

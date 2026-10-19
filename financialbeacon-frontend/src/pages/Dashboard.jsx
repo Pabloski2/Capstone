@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client.js";
 import BarraNavegacion from "../components/BarraNavegacion.jsx";
+import BarraReparto from "../components/BarraReparto.jsx";
+import GraficoDona from "../components/GraficoDona.jsx";
 import ListaRecomendaciones from "../components/ListaRecomendaciones.jsx";
+import TopGastos from "../components/TopGastos.jsx";
 import { formatoCLP } from "../utils/formato.js";
 
 const CATEGORIAS = ["FIJO", "VARIABLE", "HORMIGA"];
@@ -111,7 +114,13 @@ export default function Dashboard() {
     );
   }
 
-  const ahorroPositivo = (resumen?.ahorroEstimado ?? 0) >= 0;
+  const ingreso = Number(resumen?.ingresoMensual || 0);
+  const fijos = Number(resumen?.totalGastosFijos || 0);
+  const variables = Number(resumen?.totalGastosVariables || 0);
+  const hormiga = Number(resumen?.totalGastosHormiga || 0);
+  const totalGastos = Number(resumen?.totalGastos || 0);
+  const ahorro = Number(resumen?.ahorroEstimado || 0);
+  const ahorroPositivo = ahorro >= 0;
 
   return (
     <>
@@ -129,38 +138,25 @@ export default function Dashboard() {
 
         {error && <div className="mensaje-error">{error}</div>}
 
-        <div className="metrica-hero">
+        <div className={`metrica-hero${ahorroPositivo ? "" : " hero-negativo"}`}>
           <span className="etiqueta-metrica">
             {ahorroPositivo ? "Ahorro estimado este mes" : "Estás sobre tu ingreso este mes"}
           </span>
-          <div className="valor-metrica">{formatoCLP(resumen?.ahorroEstimado)}</div>
+          <div className="valor-metrica">{formatoCLP(ahorro)}</div>
           <p className="nota-metrica">
-            Ingreso {formatoCLP(resumen?.ingresoMensual)} · Gastos{" "}
-            {formatoCLP(resumen?.totalGastos)}
+            Ingreso {formatoCLP(ingreso)} · Gastos {formatoCLP(totalGastos)}
           </p>
+          <BarraReparto ingreso={ingreso} fijos={fijos} variables={variables} hormiga={hormiga} />
         </div>
 
-        <section className="grid-resumen">
-          <div className="tarjeta-metrica">
-            <span className="etiqueta-metrica">
-              <span className="punto-categoria" style={{ background: "var(--navy-800)" }} />
-              Gastos fijos
-            </span>
-            <span className="valor-metrica">{formatoCLP(resumen?.totalGastosFijos)}</span>
+        <section className="grid-graficos">
+          <div className="tarjeta">
+            <h2>Gastos por categoría</h2>
+            <GraficoDona fijos={fijos} variables={variables} hormiga={hormiga} />
           </div>
-          <div className="tarjeta-metrica">
-            <span className="etiqueta-metrica">
-              <span className="punto-categoria" style={{ background: "var(--amber-600)" }} />
-              Gastos variables
-            </span>
-            <span className="valor-metrica">{formatoCLP(resumen?.totalGastosVariables)}</span>
-          </div>
-          <div className="tarjeta-metrica">
-            <span className="etiqueta-metrica">
-              <span className="punto-categoria" style={{ background: "#7c3a9c" }} />
-              Gastos hormiga
-            </span>
-            <span className="valor-metrica">{formatoCLP(resumen?.totalGastosHormiga)}</span>
+          <div className="tarjeta">
+            <h2>Tus gastos más altos</h2>
+            <TopGastos gastos={gastos} />
           </div>
         </section>
 
@@ -177,6 +173,7 @@ export default function Dashboard() {
                 id="meta"
                 type="number"
                 min="0"
+                inputMode="numeric"
                 value={metaInput}
                 onChange={(e) => setMetaInput(e.target.value)}
                 placeholder="Ej: 150000 (vacío = sin meta)"
@@ -198,9 +195,10 @@ export default function Dashboard() {
                   id="ingreso"
                   type="number"
                   min="0"
+                  inputMode="numeric"
                   value={montoIngreso}
                   onChange={(e) => setMontoIngreso(e.target.value)}
-                  placeholder={resumen?.ingresoMensual ? String(resumen.ingresoMensual) : "0"}
+                  placeholder={ingreso ? String(ingreso) : "0"}
                   required
                 />
               </div>
@@ -229,6 +227,7 @@ export default function Dashboard() {
                   id="montoGasto"
                   type="number"
                   min="0"
+                  inputMode="numeric"
                   value={nuevoGasto.monto}
                   onChange={(e) => setNuevoGasto({ ...nuevoGasto, monto: e.target.value })}
                   required
@@ -285,15 +284,15 @@ export default function Dashboard() {
               <tbody>
                 {gastos.map((g) => (
                   <tr key={g.id}>
-                    <td>{g.descripcion}</td>
-                    <td>
+                    <td className="celda-desc">{g.descripcion}</td>
+                    <td className="celda-cat">
                       <span className={`etiqueta-categoria etiqueta-${g.categoria.toLowerCase()}`}>
                         <span className="punto-categoria" />
                         {g.categoria}
                       </span>
                     </td>
-                    <td>{g.fecha}</td>
-                    <td>{formatoCLP(g.monto)}</td>
+                    <td className="celda-fecha">{g.fecha}</td>
+                    <td className="celda-monto">{formatoCLP(g.monto)}</td>
                   </tr>
                 ))}
               </tbody>
