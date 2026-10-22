@@ -71,4 +71,12 @@ export const api = {
       `${BASE_URL}/recomendaciones?userId=${userId}&mes=${mes}&anio=${anio}${meta}`
     ).then(manejarRespuesta);
   },
+
+  // Plan de inversión: etapa actual, clases de instrumento sugeridas y proyección.
+  obtenerPlanInversion: (userId, mes, anio, perfil, horizonteMeses, fondoEmergenciaActual) =>
+    fetch(
+      `${BASE_URL}/inversion?userId=${userId}&mes=${mes}&anio=${anio}` +
+        `&perfil=${encodeURIComponent(perfil)}&horizonteMeses=${horizonteMeses}` +
+        `&fondoEmergenciaActual=${fondoEmergenciaActual || 0}`
+    ).then(manejarRespuesta),
 };

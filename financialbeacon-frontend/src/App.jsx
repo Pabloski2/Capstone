@@ -3,6 +3,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import DebtManager from "./pages/DebtManager.jsx";
+import Inversion from "./pages/Inversion.jsx";
 
 function usuarioActual() {
   const raw = localStorage.getItem("fb_user");
@@ -33,6 +34,14 @@ export default function App() {
           element={
             <RutaProtegida>
               <DebtManager />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/inversion"
+          element={
+            <RutaProtegida>
+              <Inversion />
             </RutaProtegida>
           }
         />

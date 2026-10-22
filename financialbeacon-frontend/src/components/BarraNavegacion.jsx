@@ -22,6 +22,12 @@ const iconos = {
       <path d="M2 10h20M6 15h4" />
     </svg>
   ),
+  inversion: (
+    <svg {...SVG}>
+      <path d="M3 17l6-6 4 4 8-8" />
+      <path d="M15 7h6v6" />
+    </svg>
+  ),
   salir: (
     <svg {...SVG}>
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
@@ -56,6 +62,9 @@ export default function BarraNavegacion({ paginaActiva }) {
           <Link className={claseEnlace("deudas")} to="/deudas" aria-current={actual("deudas")}>
             Deudas
           </Link>
+          <Link className={claseEnlace("inversion")} to="/inversion" aria-current={actual("inversion")}>
+            Inversión
+          </Link>
         </nav>
         <button className="boton-secundario boton-salir" onClick={cerrarSesion}>
           Cerrar sesión
@@ -70,6 +79,10 @@ export default function BarraNavegacion({ paginaActiva }) {
         <Link className={claseTab("deudas")} to="/deudas" aria-current={actual("deudas")}>
           {iconos.deudas}
           <span>Deudas</span>
+        </Link>
+        <Link className={claseTab("inversion")} to="/inversion" aria-current={actual("inversion")}>
+          {iconos.inversion}
+          <span>Inversión</span>
         </Link>
         <button className="tab-movil" onClick={cerrarSesion}>
           {iconos.salir}

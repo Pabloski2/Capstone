@@ -1,0 +1,250 @@
+/* ---------- Inversión ---------- */
+
+.inv-formulario {
+  margin-bottom: 20px;
+}
+
+.inv-perfiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+  border: none;
+  padding: 0;
+  margin: 12px 0 18px;
+}
+
+.inv-perfil {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radio-s);
+  background: var(--superficie);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.inv-perfil input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.inv-perfil strong {
+  font-family: var(--fuente-display);
+  font-size: 15px;
+}
+
+.inv-perfil span {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--tinta-suave);
+}
+
+.inv-perfil:hover {
+  border-color: var(--navy-700);
+}
+
+.inv-perfil.seleccionado {
+  border-color: var(--amber-500);
+  background: var(--amber-100);
+}
+
+.inv-perfil:has(input:focus-visible) {
+  outline: 3px solid rgba(245, 165, 36, 0.45);
+  outline-offset: 2px;
+}
+
+.inv-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0 16px;
+}
+
+/* Tarjeta principal del plan */
+
+.tarjeta-estrategia {
+  margin-bottom: 24px;
+}
+
+.inv-titulo-plan {
+  font-size: 22px;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.inv-fondo {
+  margin-top: 18px;
+}
+
+.inv-fondo-texto {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.inv-pista-fondo {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.inv-pista-fondo span {
+  background: var(--amber-500);
+}
+
+/* Opciones */
+
+.inv-seccion {
+  margin-bottom: 24px;
+}
+
+.inv-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.inv-opcion {
+  padding: 20px;
+}
+
+.inv-opcion-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.inv-opcion-cabecera h3 {
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.inv-chip-riesgo {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.riesgo-bajo { background: var(--verde-100); color: #0b6b45; }
+.riesgo-medio { background: var(--amber-100); color: #9a6204; }
+.riesgo-alto { background: var(--rojo-100); color: #b02a30; }
+.riesgo-variable { background: var(--navy-100); color: var(--navy-800); }
+
+.inv-asignacion {
+  margin-bottom: 14px;
+}
+
+.inv-asignacion-texto {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.inv-asignacion-texto strong {
+  font-family: var(--fuente-display);
+  font-size: 24px;
+}
+
+.inv-asignacion-texto span {
+  font-size: 14px;
+  color: var(--tinta-suave);
+}
+
+.inv-pista span {
+  background: var(--navy-700);
+}
+
+.inv-detalle {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px 20px;
+  margin: 0;
+}
+
+.inv-detalle dt {
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+
+.inv-detalle dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Proyección */
+
+.inv-proyeccion {
+  margin-bottom: 20px;
+}
+
+.inv-nota {
+  margin: 8px 0 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--tinta-suave);
+}
+
+.inv-tabla-scroll {
+  overflow-x: auto;
+}
+
+.tabla-proyeccion {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tabla-proyeccion th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--tinta-suave);
+  border-bottom: 1px solid var(--borde);
+}
+
+.tabla-proyeccion td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #eef1f5;
+}
+
+.tabla-proyeccion tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla-proyeccion .celda-base {
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+.inv-aviso {
+  margin: 0 0 8px;
+  padding: 14px 16px;
+  border-radius: var(--radio-s);
+  background: var(--navy-50);
+  border: 1px solid var(--borde);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--tinta-suave);
+}
