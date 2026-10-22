@@ -32,10 +32,10 @@ export default function Login() {
           Financial Beacon
         </div>
         <div className="auth-mensaje">
-          <h2>Tu plata, con rumbo claro.</h2>
+          <h2>Tu dinero, con rumbo claro</h2>
           <p>
             Registra tus ingresos y gastos, y deja que el sistema te muestre
-            cuánto puedes ahorrar y cómo salir de tus deudas más rápido.
+            cuánto puedes ahorrar y cómo salir de tus deudas más rápido
           </p>
         </div>
         <div />

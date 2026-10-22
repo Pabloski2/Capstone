@@ -33,10 +33,10 @@ export default function Register() {
           Financial Beacon
         </div>
         <div className="auth-mensaje">
-          <h2>Empieza a ver tu plata distinto.</h2>
+          <h2>Empieza a ver tu dinero desde el lado financiero</h2>
           <p>
             Un minuto para crear tu cuenta, y desde ahí el sistema arma solo
-            tu resumen mensual y tu plan de pago de deudas.
+            tu resumen mensual y tu plan de pago de deudas
           </p>
         </div>
         <div />
