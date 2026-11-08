@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api/client.js";
+import { guardarSesion, rutaTrasLogin } from "../utils/sesion.js";
 
 export default function Register() {
   const [nombre, setNombre] = useState("");
@@ -16,8 +17,8 @@ export default function Register() {
     setCargando(true);
     try {
       const usuario = await api.registrar(email, password, nombre);
-      localStorage.setItem("fb_user", JSON.stringify(usuario));
-      navigate("/dashboard");
+      guardarSesion(usuario);
+      navigate(rutaTrasLogin(usuario));
     } catch (err) {
       setError(err.message || "No se pudo completar el registro");
     } finally {
@@ -33,10 +34,10 @@ export default function Register() {
           Financial Beacon
         </div>
         <div className="auth-mensaje">
-          <h2>Empieza a ver tu dinero desde el lado financiero</h2>
+          <h2>Empieza a ver tu plata distinto.</h2>
           <p>
             Un minuto para crear tu cuenta, y desde ahí el sistema arma solo
-            tu resumen mensual y tu plan de pago de deudas
+            tu resumen mensual y tu plan de pago de deudas.
           </p>
         </div>
         <div />
@@ -75,10 +76,13 @@ export default function Register() {
               <input
                 id="password"
                 type="password"
+                minLength={8}
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <small className="ayuda-campo">Mínimo 8 caracteres.</small>
             </div>
             <button className="boton-primario" type="submit" disabled={cargando}>
               {cargando ? "Creando cuenta..." : "Registrarme"}

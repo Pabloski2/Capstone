@@ -5,3 +5,6 @@ target/
 .classpath
 .project
 .settings/
+
+# Base de datos local de desarrollo (H2 en archivo)
+data/

@@ -1,5 +1,6 @@
 package com.financialbeacon.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -24,6 +25,7 @@ public class Deuda {
     @Column(nullable = false)
     private BigDecimal cuotaMinima;
 
+    @JsonIgnore // nunca se devuelve el usuario (ni sus datos) dentro de un gasto, deuda o ingreso
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

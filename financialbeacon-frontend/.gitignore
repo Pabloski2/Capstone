@@ -2,3 +2,12 @@ node_modules/
 dist/
 .vscode/
 *.log
+
+# Variables de entorno locales
+.env
+.env.*
+!.env.example
+
+# Capacitor
+android/app/build/
+ios/App/Pods/

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api/client.js";
 import BarraNavegacion from "../components/BarraNavegacion.jsx";
 import BarraReparto from "../components/BarraReparto.jsx";
@@ -10,15 +10,30 @@ import { formatoCLP } from "../utils/formato.js";
 
 const CATEGORIAS = ["FIJO", "VARIABLE", "HORMIGA"];
 
+// Fecha en hora local (toISOString usa UTC y en Chile, de noche, daría el día siguiente).
+function aISOLocal(d) {
+  const dos = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`;
+}
+
 function hoy() {
   const d = new Date();
-  return { mes: d.getMonth() + 1, anio: d.getFullYear(), fechaISO: d.toISOString().slice(0, 10) };
+  return { mes: d.getMonth() + 1, anio: d.getFullYear(), fechaISO: aISOLocal(d) };
+}
+
+// Fecha sugerida para un gasto nuevo: hoy si miras el mes actual; si no, el día 1 del mes que miras.
+function fechaPorDefecto(mes, anio) {
+  const h = hoy();
+  return h.mes === mes && h.anio === anio ? h.fechaISO : `${anio}-${String(mes).padStart(2, "0")}-01`;
 }
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const usuario = JSON.parse(localStorage.getItem("fb_user") || "{}");
-  const { mes, anio, fechaISO } = hoy();
+  const hoyInfo = hoy();
+  const [periodo, setPeriodo] = useState({ mes: hoyInfo.mes, anio: hoyInfo.anio });
+  const { mes, anio } = periodo;
+  const esMesActual = mes === hoyInfo.mes && anio === hoyInfo.anio;
 
   const claveMeta = `fb_meta_${usuario.id}`;
 
@@ -32,7 +47,7 @@ export default function Dashboard() {
     descripcion: "",
     monto: "",
     categoria: "FIJO",
-    fecha: fechaISO,
+    fecha: hoyInfo.fechaISO,
   });
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(true);
@@ -62,7 +77,14 @@ export default function Dashboard() {
     }
     cargarDatos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [mes, anio]);
+
+  function cambiarMes(delta) {
+    const d = new Date(anio, mes - 1 + delta, 1);
+    const nuevo = { mes: d.getMonth() + 1, anio: d.getFullYear() };
+    setPeriodo(nuevo);
+    setNuevoGasto((g) => ({ ...g, fecha: fechaPorDefecto(nuevo.mes, nuevo.anio) }));
+  }
 
   async function guardarMeta(e) {
     e.preventDefault();
@@ -99,10 +121,21 @@ export default function Dashboard() {
         nuevoGasto.categoria,
         nuevoGasto.fecha
       );
-      setNuevoGasto({ descripcion: "", monto: "", categoria: "FIJO", fecha: fechaISO });
+      setNuevoGasto({ descripcion: "", monto: "", categoria: "FIJO", fecha: fechaPorDefecto(mes, anio) });
       await cargarDatos();
     } catch (err) {
       setError(err.message || "No se pudo registrar el gasto");
+    }
+  }
+
+  async function eliminarGasto(id) {
+    if (!window.confirm("¿Eliminar este gasto?")) return;
+    setError("");
+    try {
+      await api.eliminarGasto(id);
+      await cargarDatos();
+    } catch (err) {
+      setError(err.message || "No se pudo eliminar el gasto");
     }
   }
 
@@ -128,19 +161,27 @@ export default function Dashboard() {
       <div className="contenedor-dashboard">
         <header className="encabezado-dashboard">
           <h1>Hola, {usuario.nombre}</h1>
-          <p className="subtitulo">
-            {new Date(anio, mes - 1).toLocaleDateString("es-CL", {
-              month: "long",
-              year: "numeric",
-            })}
-          </p>
+          <div className="selector-mes" role="group" aria-label="Cambiar de mes">
+            <button type="button" onClick={() => cambiarMes(-1)} aria-label="Mes anterior">
+              ‹
+            </button>
+            <span>
+              {new Date(anio, mes - 1).toLocaleDateString("es-CL", {
+                month: "long",
+                year: "numeric",
+              })}
+            </span>
+            <button type="button" onClick={() => cambiarMes(1)} disabled={esMesActual} aria-label="Mes siguiente">
+              ›
+            </button>
+          </div>
         </header>
 
         {error && <div className="mensaje-error">{error}</div>}
 
         <div className={`metrica-hero${ahorroPositivo ? "" : " hero-negativo"}`}>
           <span className="etiqueta-metrica">
-            {ahorroPositivo ? "Ahorro estimado este mes" : "Estás sobre tu ingreso este mes"}
+            {ahorroPositivo ? "Ahorro estimado" : "Estás sobre tu ingreso"}{esMesActual ? " este mes" : " en este mes"}
           </span>
           <div className="valor-metrica">{formatoCLP(ahorro)}</div>
           <p className="nota-metrica">
@@ -292,13 +333,27 @@ export default function Dashboard() {
                       </span>
                     </td>
                     <td className="celda-fecha">{g.fecha}</td>
-                    <td className="celda-monto">{formatoCLP(g.monto)}</td>
+                    <td className="celda-monto">
+                      {formatoCLP(g.monto)}
+                      <button
+                        type="button"
+                        className="boton-eliminar"
+                        onClick={() => eliminarGasto(g.id)}
+                        aria-label={`Eliminar gasto ${g.descripcion}`}
+                      >
+                        ×
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
         </section>
+
+        <p className="pie-cuenta">
+          <Link to="/cuenta">Mi cuenta y privacidad</Link>
+        </p>
       </div>
     </>
   );

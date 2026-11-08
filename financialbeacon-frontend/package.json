@@ -6,15 +6,27 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
-    "preview": "vite preview --host"
+    "preview": "vite preview --host",
+    "cap:sync": "node scripts/verificar-api.mjs && vite build && cap sync",
+    "android": "node scripts/verificar-api.mjs && vite build && cap sync android && cap open android",
+    "ios": "node scripts/verificar-api.mjs && vite build && cap sync ios && cap open ios",
+    "verificar:api": "node scripts/verificar-api.mjs"
   },
   "dependencies": {
+    "@capacitor/core": "^8.5.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/ios": "^8.5.3",
     "@vitejs/plugin-react": "^4.3.1",
     "vite": "^5.4.8"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

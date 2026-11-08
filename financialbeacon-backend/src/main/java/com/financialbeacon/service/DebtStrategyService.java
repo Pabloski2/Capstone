@@ -3,11 +3,13 @@ package com.financialbeacon.service;
 import com.financialbeacon.dto.DeudaDTOs.DeudaConPagoDTO;
 import com.financialbeacon.dto.DeudaDTOs.EstrategiaDeudaDTO;
 import com.financialbeacon.dto.ResumenMensualDTO;
+import com.financialbeacon.exception.ApiException;
 import com.financialbeacon.model.Deuda;
 import com.financialbeacon.model.User;
 import com.financialbeacon.repository.DeudaRepository;
 import com.financialbeacon.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -39,9 +41,15 @@ public class DebtStrategyService {
     public Deuda registrarDeuda(Long userId, String nombre, BigDecimal montoTotal,
                                  BigDecimal tasaInteres, BigDecimal cuotaMinima) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        Deuda deuda = new Deuda(null, nombre, montoTotal, tasaInteres, cuotaMinima, user);
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Tu sesión no es válida. Inicia sesión nuevamente."));
+        Deuda deuda = new Deuda(null, nombre.trim(), montoTotal, tasaInteres, cuotaMinima, user);
         return deudaRepository.save(deuda);
+    }
+
+    public void eliminarDeuda(Long userId, Long deudaId) {
+        Deuda deuda = deudaRepository.findByIdAndUserId(deudaId, userId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Deuda no encontrada"));
+        deudaRepository.delete(deuda);
     }
 
     public List<Deuda> listarDeudas(Long userId) {

@@ -1,6 +1,7 @@
 package com.financialbeacon.controller;
 
 import com.financialbeacon.dto.InversionDTOs.PlanInversionDTO;
+import com.financialbeacon.security.AuthInterceptor;
 import com.financialbeacon.service.InversionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,9 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
+/** El id del usuario sale siempre del token (atributo "userId"), nunca de la petición. */
 @RestController
 @RequestMapping("/api/inversion")
-@CrossOrigin(originPatterns = "*") // dev: acepta localhost y la IP del PC en la red local
 public class InversionController {
 
     @Autowired
@@ -23,7 +24,7 @@ public class InversionController {
      */
     @GetMapping
     public ResponseEntity<PlanInversionDTO> obtenerPlan(
-            @RequestParam Long userId,
+            @RequestAttribute(AuthInterceptor.ATTR_USER_ID) Long userId,
             @RequestParam Integer mes,
             @RequestParam Integer anio,
             @RequestParam(required = false, defaultValue = "MODERADO") String perfil,

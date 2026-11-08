@@ -80,6 +80,17 @@ export default function DebtManager() {
     }
   }
 
+  async function eliminarDeuda(id, nombre) {
+    if (!window.confirm(`¿Eliminar la deuda «${nombre}»?`)) return;
+    setError("");
+    try {
+      await api.eliminarDeuda(id);
+      await cargarDatos();
+    } catch (err) {
+      setError(err.message || "No se pudo eliminar la deuda");
+    }
+  }
+
   if (cargando) {
     return (
       <div className="pantalla-centrada">
@@ -259,6 +270,9 @@ export default function DebtManager() {
                   <th>Monto total</th>
                   <th>Tasa interés</th>
                   <th>Cuota mínima</th>
+                  <th>
+                    <span className="solo-lectores">Acciones</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -268,6 +282,15 @@ export default function DebtManager() {
                     <td data-label="Monto total">{formatoCLP(d.montoTotal)}</td>
                     <td data-label="Tasa interés">{d.tasaInteres}%</td>
                     <td data-label="Cuota mínima">{formatoCLP(d.cuotaMinima)}</td>
+                    <td data-label="Acciones">
+                      <button
+                        type="button"
+                        className="boton-eliminar boton-eliminar-texto"
+                        onClick={() => eliminarDeuda(d.id, d.nombre)}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

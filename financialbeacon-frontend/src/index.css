@@ -1044,3 +1044,128 @@ button, input, select {
     content: none;
   }
 }
+
+/* ---------- Eliminar registros / ayudas de campo ---------- */
+
+.boton-eliminar {
+  margin-left: 10px;
+  padding: 0 8px;
+  min-width: 28px;
+  height: 28px;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--tinta-suave);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.boton-eliminar:hover,
+.boton-eliminar:focus-visible {
+  background: var(--rojo-100);
+  border-color: var(--rojo-600);
+  color: var(--rojo-600);
+}
+
+.boton-eliminar-texto {
+  margin-left: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.ayuda-campo {
+  display: block;
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--tinta-suave);
+}
+
+/* En celular el botón de eliminar es más fácil de tocar. */
+@media (max-width: 720px) {
+  .boton-eliminar {
+    min-width: 36px;
+    height: 36px;
+  }
+
+  .boton-eliminar-texto {
+    min-width: 0;
+    height: 34px;
+    padding: 0 14px;
+  }
+}
+
+/* ---------- Selector de mes ---------- */
+
+.selector-mes {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.selector-mes span {
+  min-width: 140px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: var(--tinta-suave);
+}
+
+.selector-mes button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: var(--superficie);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.selector-mes button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ---------- Cuenta ---------- */
+
+.zona-peligro {
+  border-color: var(--rojo-100);
+}
+
+.boton-peligro {
+  width: 100%;
+  min-height: 48px;
+  border: none;
+  border-radius: var(--radio-s);
+  background: var(--rojo-600);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.boton-peligro:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.pie-cuenta {
+  margin: 24px 0 8px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.pie-cuenta a {
+  color: var(--tinta-suave);
+}
+
+@media (max-width: 720px) {
+  .nav-avatar-escritorio {
+    display: none;
+  }
+}

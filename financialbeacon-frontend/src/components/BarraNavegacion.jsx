@@ -1,4 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
+import { cerrarSesionLocal, leerSesion } from "../utils/sesion.js";
+import Avatar from "./Avatar.jsx";
 
 const SVG = {
   fill: "none",
@@ -28,9 +30,10 @@ const iconos = {
       <path d="M15 7h6v6" />
     </svg>
   ),
-  salir: (
+  cuenta: (
     <svg {...SVG}>
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21a8 8 0 0 1 16 0" />
     </svg>
   ),
 };
@@ -38,8 +41,10 @@ const iconos = {
 export default function BarraNavegacion({ paginaActiva }) {
   const navigate = useNavigate();
 
+  const sesion = leerSesion();
+
   function cerrarSesion() {
-    localStorage.removeItem("fb_user");
+    cerrarSesionLocal();
     navigate("/login");
   }
 
@@ -65,7 +70,18 @@ export default function BarraNavegacion({ paginaActiva }) {
           <Link className={claseEnlace("inversion")} to="/inversion" aria-current={actual("inversion")}>
             Inversión
           </Link>
+          <Link className={claseEnlace("soporte")} to="/soporte" aria-current={actual("soporte")}>
+            Soporte
+          </Link>
         </nav>
+        <Link
+          className={`nav-avatar nav-avatar-escritorio${paginaActiva === "cuenta" ? " activo" : ""}`}
+          to="/cuenta"
+          aria-current={actual("cuenta")}
+        >
+          <Avatar nombre={sesion?.nombre} foto={sesion?.fotoPerfil} tamano={34} />
+          <span>Mi cuenta</span>
+        </Link>
         <button className="boton-secundario boton-salir" onClick={cerrarSesion}>
           Cerrar sesión
         </button>
@@ -84,10 +100,10 @@ export default function BarraNavegacion({ paginaActiva }) {
           {iconos.inversion}
           <span>Inversión</span>
         </Link>
-        <button className="tab-movil" onClick={cerrarSesion}>
-          {iconos.salir}
-          <span>Salir</span>
-        </button>
+        <Link className={claseTab("cuenta")} to="/cuenta" aria-current={actual("cuenta")}>
+          {sesion?.fotoPerfil ? <Avatar nombre={sesion?.nombre} foto={sesion.fotoPerfil} tamano={24} /> : iconos.cuenta}
+          <span>Cuenta</span>
+        </Link>
       </nav>
     </>
   );

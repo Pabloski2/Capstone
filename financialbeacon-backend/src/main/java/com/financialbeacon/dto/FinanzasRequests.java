@@ -1,33 +1,38 @@
 package com.financialbeacon.dto;
 
 import com.financialbeacon.model.Categoria;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/** El usuario ya no viaja en el cuerpo: se obtiene del token de sesión. */
 public class FinanzasRequests {
 
     public static class IngresoRequest {
 
-        private Long userId;
-
+        @NotNull(message = "El monto es obligatorio")
+        @DecimalMin(value = "0", message = "El monto no puede ser negativo")
+        @Digits(integer = 12, fraction = 2, message = "El monto no es válido")
         private BigDecimal monto;
 
+        @NotNull(message = "El mes es obligatorio")
+        @Min(value = 1, message = "El mes debe estar entre 1 y 12")
+        @Max(value = 12, message = "El mes debe estar entre 1 y 12")
         private Integer mes;
 
+        @NotNull(message = "El año es obligatorio")
+        @Min(value = 2000, message = "El año no es válido")
+        @Max(value = 2100, message = "El año no es válido")
         private Integer anio;
 
         public IngresoRequest() {}
-
-        public IngresoRequest(Long userId, BigDecimal monto, Integer mes, Integer anio) {
-            this.userId = userId;
-            this.monto = monto;
-            this.mes = mes;
-            this.anio = anio;
-        }
-
-        public Long getUserId() { return userId; }
-        public void setUserId(Long userId) { this.userId = userId; }
 
         public BigDecimal getMonto() { return monto; }
         public void setMonto(BigDecimal monto) { this.monto = monto; }
@@ -41,28 +46,22 @@ public class FinanzasRequests {
 
     public static class GastoRequest {
 
-        private Long userId;
-
+        @NotBlank(message = "La descripción es obligatoria")
+        @Size(max = 255, message = "La descripción es demasiado larga")
         private String descripcion;
 
+        @NotNull(message = "El monto es obligatorio")
+        @DecimalMin(value = "0.01", message = "El monto debe ser mayor que cero")
+        @Digits(integer = 12, fraction = 2, message = "El monto no es válido")
         private BigDecimal monto;
 
+        @NotNull(message = "La categoría es obligatoria")
         private Categoria categoria;
 
+        @NotNull(message = "La fecha es obligatoria")
         private LocalDate fecha;
 
         public GastoRequest() {}
-
-        public GastoRequest(Long userId, String descripcion, BigDecimal monto, Categoria categoria, LocalDate fecha) {
-            this.userId = userId;
-            this.descripcion = descripcion;
-            this.monto = monto;
-            this.categoria = categoria;
-            this.fecha = fecha;
-        }
-
-        public Long getUserId() { return userId; }
-        public void setUserId(Long userId) { this.userId = userId; }
 
         public String getDescripcion() { return descripcion; }
         public void setDescripcion(String descripcion) { this.descripcion = descripcion; }

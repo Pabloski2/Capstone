@@ -9,6 +9,11 @@ import java.util.List;
 
 public interface GastoRepository extends JpaRepository<Gasto, Long> {
 
+    void deleteByUserId(Long userId);
+
+
+    java.util.Optional<Gasto> findByIdAndUserId(Long id, Long userId);
+
     List<Gasto> findByUserIdAndFechaBetween(Long userId, LocalDate desde, LocalDate hasta);
 
     List<Gasto> findByUserIdAndFechaBetweenAndCategoria(

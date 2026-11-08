@@ -1,0 +1,253 @@
+/* ---------- Avatar y perfil ---------- */
+
+.avatar {
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-block;
+  border: 2px solid var(--borde);
+}
+
+.avatar-iniciales {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--navy-950);
+  border-color: var(--navy-950);
+  color: var(--amber-500);
+  font-family: var(--fuente-display);
+  font-weight: 700;
+}
+
+.editor-foto {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.editor-foto-acciones {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.boton-texto {
+  padding: 4px 0;
+  border: none;
+  background: none;
+  color: var(--rojo-600);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boton-texto:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.texto-error {
+  margin: 0;
+  font-size: 13px;
+  color: #a13636;
+}
+
+.formulario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0 16px;
+}
+
+.campo textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radio-s);
+  background: var(--superficie);
+  font: inherit;
+  font-size: 15px;
+  resize: vertical;
+  min-height: 110px;
+}
+
+.campo textarea:focus {
+  outline: none;
+  border-color: var(--navy-700);
+}
+
+.mensaje-exito {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: var(--radio-s);
+  background: var(--verde-100);
+  color: #0b6b45;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Secciones de "Mi cuenta" */
+.seccion-cuenta {
+  margin-bottom: 20px;
+}
+
+.seccion-cuenta h2 {
+  margin-bottom: 4px;
+}
+
+.seccion-cuenta .ayuda-campo {
+  margin: 0 0 14px;
+}
+
+.acciones-cuenta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.acciones-cuenta a {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Pasos de la bienvenida */
+.pasos {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tinta-suave);
+}
+
+.paso {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.paso-numero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--borde);
+  font-size: 12.5px;
+}
+
+.paso.activo {
+  color: var(--navy-950);
+}
+
+.paso.activo .paso-numero {
+  background: var(--amber-500);
+  border-color: var(--amber-500);
+  color: var(--navy-950);
+}
+
+.pasos-linea {
+  flex: 0 0 28px;
+  height: 2px;
+  background: var(--borde);
+}
+
+/* Avatar en la barra de navegación */
+.nav-avatar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  border-radius: 999px;
+  color: var(--navy-950);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s ease;
+}
+
+.nav-avatar:hover,
+.nav-avatar.activo {
+  background: var(--navy-50);
+}
+
+.tab-movil .avatar {
+  border-width: 1.5px;
+}
+
+/* Soporte */
+.faq details {
+  border-bottom: 1px solid var(--borde);
+  padding: 12px 0;
+}
+
+.faq details:last-child {
+  border-bottom: none;
+}
+
+.faq summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14.5px;
+}
+
+.faq details p {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--tinta-suave);
+}
+
+.lista-tickets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ticket {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--borde);
+}
+
+.ticket:last-child {
+  border-bottom: none;
+}
+
+.ticket-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ticket-cabecera strong {
+  font-size: 14.5px;
+}
+
+.ticket-meta {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: var(--tinta-suave);
+}
+
+.chip-estado {
+  flex-shrink: 0;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--amber-100);
+  color: #9a6204;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .editor-foto {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

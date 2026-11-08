@@ -1,34 +1,40 @@
 package com.financialbeacon.dto;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 import java.math.BigDecimal;
 import java.util.List;
 
 public class DeudaDTOs {
 
+    /** El usuario ya no viaja en el cuerpo: se obtiene del token de sesión. */
     public static class DeudaRequest {
 
-        private Long userId;
-
+        @NotBlank(message = "El nombre de la deuda es obligatorio")
+        @Size(max = 255, message = "El nombre es demasiado largo")
         private String nombre;
 
+        @NotNull(message = "El monto total es obligatorio")
+        @DecimalMin(value = "0.01", message = "El monto total debe ser mayor que cero")
+        @Digits(integer = 12, fraction = 2, message = "El monto total no es válido")
         private BigDecimal montoTotal;
 
+        @NotNull(message = "La tasa de interés es obligatoria")
+        @DecimalMin(value = "0", message = "La tasa de interés no puede ser negativa")
+        @DecimalMax(value = "1000", message = "La tasa de interés no es válida")
         private BigDecimal tasaInteres;
 
+        @NotNull(message = "La cuota mínima es obligatoria")
+        @DecimalMin(value = "0", message = "La cuota mínima no puede ser negativa")
+        @Digits(integer = 12, fraction = 2, message = "La cuota mínima no es válida")
         private BigDecimal cuotaMinima;
 
         public DeudaRequest() {}
-
-        public DeudaRequest(Long userId, String nombre, BigDecimal montoTotal, BigDecimal tasaInteres, BigDecimal cuotaMinima) {
-            this.userId = userId;
-            this.nombre = nombre;
-            this.montoTotal = montoTotal;
-            this.tasaInteres = tasaInteres;
-            this.cuotaMinima = cuotaMinima;
-        }
-
-        public Long getUserId() { return userId; }
-        public void setUserId(Long userId) { this.userId = userId; }
 
         public String getNombre() { return nombre; }
         public void setNombre(String nombre) { this.nombre = nombre; }

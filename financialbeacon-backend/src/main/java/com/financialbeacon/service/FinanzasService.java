@@ -1,11 +1,13 @@
 package com.financialbeacon.service;
 
 import com.financialbeacon.dto.ResumenMensualDTO;
+import com.financialbeacon.exception.ApiException;
 import com.financialbeacon.model.*;
 import com.financialbeacon.repository.GastoRepository;
 import com.financialbeacon.repository.IngresoMensualRepository;
 import com.financialbeacon.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,8 +29,8 @@ public class FinanzasService {
 
     // Registra o actualiza el ingreso del mes (es "actualizable mensualmente")
     public IngresoMensual registrarIngreso(Long userId, BigDecimal monto, Integer mes, Integer anio) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        validarPeriodo(mes, anio);
+        User user = buscarUsuario(userId);
 
         IngresoMensual ingreso = ingresoMensualRepository
                 .findByUserIdAndMesAndAnio(userId, mes, anio)
@@ -40,20 +42,28 @@ public class FinanzasService {
 
     public Gasto registrarGasto(Long userId, String descripcion, BigDecimal monto,
                                  Categoria categoria, LocalDate fecha) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        User user = buscarUsuario(userId);
 
-        Gasto gasto = new Gasto(null, descripcion, monto, categoria, fecha, user);
+        Gasto gasto = new Gasto(null, descripcion.trim(), monto, categoria, fecha, user);
         return gastoRepository.save(gasto);
     }
 
+    // Solo borra si el gasto pertenece al usuario de la sesión.
+    public void eliminarGasto(Long userId, Long gastoId) {
+        Gasto gasto = gastoRepository.findByIdAndUserId(gastoId, userId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Gasto no encontrado"));
+        gastoRepository.delete(gasto);
+    }
+
     public List<Gasto> listarGastosDelMes(Long userId, Integer mes, Integer anio) {
+        validarPeriodo(mes, anio);
         LocalDate desde = LocalDate.of(anio, mes, 1);
         LocalDate hasta = YearMonth.of(anio, mes).atEndOfMonth();
         return gastoRepository.findByUserIdAndFechaBetween(userId, desde, hasta);
     }
 
     public ResumenMensualDTO obtenerResumenMensual(Long userId, Integer mes, Integer anio) {
+        validarPeriodo(mes, anio);
         BigDecimal ingreso = ingresoMensualRepository
                 .findByUserIdAndMesAndAnio(userId, mes, anio)
                 .map(IngresoMensual::getMonto)
@@ -70,6 +80,18 @@ public class FinanzasService {
         return new ResumenMensualDTO(
                 ingreso, totalFijos, totalVariables, totalHormiga, totalGastos, ahorroEstimado
         );
+    }
+
+    private User buscarUsuario(Long userId) {
+        // Si el token es válido pero el usuario ya no existe (por ejemplo, base reiniciada), se cierra la sesión.
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Tu sesión no es válida. Inicia sesión nuevamente."));
+    }
+
+    private static void validarPeriodo(Integer mes, Integer anio) {
+        if (mes == null || anio == null || mes < 1 || mes > 12 || anio < 2000 || anio > 2100) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "El mes o el año no son válidos");
+        }
     }
 
     private BigDecimal sumarPorCategoria(List<Gasto> gastos, Categoria categoria) {

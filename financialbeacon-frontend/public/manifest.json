@@ -1,4 +1,6 @@
 {
+  "id": "/",
+  "lang": "es-CL",
   "name": "Financial Beacon",
   "short_name": "FinBeacon",
   "description": "Presupuesto, gastos y estrategia de pago de deudas",
@@ -20,5 +22,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "scope": "/"
 }
