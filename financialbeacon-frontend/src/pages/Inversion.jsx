@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client.js";
 import BarraNavegacion from "../components/BarraNavegacion.jsx";
+import TablaInstrumentos from "../components/TablaInstrumentos.jsx";
 import { formatoCLP } from "../utils/formato.js";
 import "./Inversion.css";
 
@@ -278,6 +279,8 @@ export default function Inversion() {
             <p className="inv-aviso">{plan.aviso}</p>
           </>
         )}
+
+        <TablaInstrumentos perfil={prefs.perfil} />
       </div>
     </>
   );

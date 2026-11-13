@@ -248,3 +248,113 @@
   line-height: 1.55;
   color: var(--tinta-suave);
 }
+
+/* ---------- Comparador de instrumentos ---------- */
+.inv-comparador {
+  margin-bottom: 16px;
+}
+
+.inv-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.inv-filtro {
+  padding: 8px 14px;
+  border: 1.5px solid var(--borde);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.inv-filtro:hover {
+  border-color: var(--navy-700);
+}
+
+.inv-filtro.activo {
+  border-color: var(--amber-500);
+  background: var(--amber-100);
+}
+
+.tabla-instrumentos {
+  width: 100%;
+  min-width: 920px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tabla-instrumentos thead th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--tinta-suave);
+  border-bottom: 1px solid var(--borde);
+  white-space: nowrap;
+}
+
+.tabla-instrumentos td,
+.tabla-instrumentos tbody th {
+  padding: 12px 10px;
+  border-bottom: 1px solid #eef1f5;
+  text-align: left;
+  vertical-align: top;
+  font-weight: 400;
+}
+
+.tabla-instrumentos tbody th.celda-nombre {
+  min-width: 220px;
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+.tabla-instrumentos tbody tr:last-child td,
+.tabla-instrumentos tbody tr:last-child th {
+  border-bottom: none;
+}
+
+.tabla-instrumentos tr.fila-elegida {
+  background: var(--amber-100);
+}
+
+.tabla-instrumentos input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--navy-700);
+  cursor: pointer;
+}
+
+.inv-encaja {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0b6b45;
+}
+
+.inv-elegidas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 14px 16px;
+  border-radius: var(--radio-s);
+  background: var(--navy-50);
+  border: 1px solid var(--borde);
+}
+
+.inv-elegidas p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
