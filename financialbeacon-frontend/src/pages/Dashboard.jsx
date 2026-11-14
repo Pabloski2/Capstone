@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { api } from "../api/client.js";
 import BarraNavegacion from "../components/BarraNavegacion.jsx";
 import BarraReparto from "../components/BarraReparto.jsx";
+import GraficoAhorro from "../components/GraficoAhorro.jsx";
 import GraficoDona from "../components/GraficoDona.jsx";
 import ListaRecomendaciones from "../components/ListaRecomendaciones.jsx";
+import Plegable, { useAbierto } from "../components/Plegable.jsx";
 import TopGastos from "../components/TopGastos.jsx";
 import { formatoCLP } from "../utils/formato.js";
 
@@ -51,6 +53,8 @@ export default function Dashboard() {
   });
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(true);
+  const location = useLocation();
+  const [heroAbierto, alternarHero] = useAbierto(`${usuario.id}:hero`, true);
 
   async function cargarDatos(metaActual = meta) {
     try {
@@ -69,6 +73,20 @@ export default function Dashboard() {
       setCargando(false);
     }
   }
+
+  // Si llegas desde un aviso (por ejemplo "Registrar sueldo"), te deja en el campo que falta.
+  useEffect(() => {
+    if (cargando) return;
+    const campo = { "#ingreso": "ingreso", "#gasto": "descripcion" }[location.hash];
+    const el = campo && document.getElementById(campo);
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    el.focus({ preventScroll: true });
+    const tarjeta = el.closest(".tarjeta");
+    tarjeta?.classList.add("resaltar");
+    const quitar = setTimeout(() => tarjeta?.classList.remove("resaltar"), 2400);
+    return () => clearTimeout(quitar);
+  }, [cargando, location.hash]);
 
   useEffect(() => {
     if (!usuario.id) {
@@ -154,6 +172,11 @@ export default function Dashboard() {
   const totalGastos = Number(resumen?.totalGastos || 0);
   const ahorro = Number(resumen?.ahorroEstimado || 0);
   const ahorroPositivo = ahorro >= 0;
+  const masAlto = gastos.reduce((m, g) => (!m || g.monto > m.monto ? g : m), null);
+  const resumenGastos =
+    gastos.length === 0
+      ? "Sin gastos registrados"
+      : `${gastos.length} ${gastos.length === 1 ? "gasto" : "gastos"} · ${formatoCLP(totalGastos)}`;
 
   return (
     <>
@@ -179,15 +202,38 @@ export default function Dashboard() {
 
         {error && <div className="mensaje-error">{error}</div>}
 
-        <div className={`metrica-hero${ahorroPositivo ? "" : " hero-negativo"}`}>
-          <span className="etiqueta-metrica">
-            {ahorroPositivo ? "Ahorro estimado" : "Estás sobre tu ingreso"}{esMesActual ? " este mes" : " en este mes"}
-          </span>
-          <div className="valor-metrica">{formatoCLP(ahorro)}</div>
-          <p className="nota-metrica">
-            Ingreso {formatoCLP(ingreso)} · Gastos {formatoCLP(totalGastos)}
-          </p>
-          <BarraReparto ingreso={ingreso} fijos={fijos} variables={variables} hormiga={hormiga} />
+        <div
+          className={`metrica-hero hero-plegable${ahorroPositivo ? "" : " hero-negativo"}${heroAbierto ? "" : " encogido"}`}
+        >
+          {heroAbierto ? (
+            <>
+              <span className="etiqueta-metrica">
+                {ahorroPositivo ? "Ahorro estimado" : "Estás sobre tu ingreso"}{esMesActual ? " este mes" : " en este mes"}
+              </span>
+              <div className="valor-metrica">{formatoCLP(ahorro)}</div>
+              <p className="nota-metrica">
+                Ingreso {formatoCLP(ingreso)} · Gastos {formatoCLP(totalGastos)}
+              </p>
+              <BarraReparto ingreso={ingreso} fijos={fijos} variables={variables} hormiga={hormiga} />
+            </>
+          ) : (
+            <div className="hero-sueldo">
+              <span className="etiqueta-metrica">Sueldo {esMesActual ? "de este mes" : "del mes"}</span>
+              <div className="valor-metrica">{formatoCLP(ingreso)}</div>
+              {ingreso === 0 && <p className="nota-metrica">Aún no registras tu sueldo de este mes.</p>}
+            </div>
+          )}
+          <button
+            type="button"
+            className="hero-tab"
+            aria-expanded={heroAbierto}
+            aria-label={heroAbierto ? "Encoger y ver solo el sueldo" : "Ver el resumen completo"}
+            onClick={alternarHero}
+          >
+            <span className="hero-tab-visual" aria-hidden="true">
+              <span className="hero-flecha">▾</span>
+            </span>
+          </button>
         </div>
 
         <section className="grid-graficos">
@@ -195,11 +241,21 @@ export default function Dashboard() {
             <h2>Gastos por categoría</h2>
             <GraficoDona fijos={fijos} variables={variables} hormiga={hormiga} />
           </div>
-          <div className="tarjeta">
-            <h2>Tus gastos más altos</h2>
+          <Plegable
+            id={`${usuario.id}:top`}
+            titulo="Tus gastos más altos"
+            resumen={masAlto ? `${masAlto.descripcion} · ${formatoCLP(masAlto.monto)}` : "Sin gastos registrados"}
+          >
             <TopGastos gastos={gastos} />
-          </div>
+          </Plegable>
         </section>
+
+        <GraficoAhorro
+          mes={mes}
+          anio={anio}
+          esMesActual={esMesActual}
+          claveDatos={`${ingreso}|${totalGastos}|${gastos.length}`}
+        />
 
         <ListaRecomendaciones
           recomendaciones={recomendaciones}
@@ -305,8 +361,7 @@ export default function Dashboard() {
           </div>
         </section>
 
-        <section className="tarjeta">
-          <h2>Gastos del mes</h2>
+        <Plegable id={`${usuario.id}:gastos`} titulo="Gastos del mes" resumen={resumenGastos} className="gastos-del-mes">
           {gastos.length === 0 ? (
             <p className="estado-vacio">
               Todavía no registras gastos este mes. Agrega el primero arriba
@@ -349,7 +404,7 @@ export default function Dashboard() {
               </tbody>
             </table>
           )}
-        </section>
+        </Plegable>
 
         <p className="pie-cuenta">
           <Link to="/cuenta">Mi cuenta y privacidad</Link>

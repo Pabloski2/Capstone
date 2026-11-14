@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client.js";
+import AvisoDatosFaltantes from "../components/AvisoDatosFaltantes.jsx";
 import BarraNavegacion from "../components/BarraNavegacion.jsx";
 import TablaInstrumentos from "../components/TablaInstrumentos.jsx";
 import { formatoCLP } from "../utils/formato.js";
@@ -65,19 +66,20 @@ export default function Inversion() {
   const [plan, setPlan] = useState(null);
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(true);
+  const [resumen, setResumen] = useState(null);
+  const [avisoCerrado, setAvisoCerrado] = useState(false);
+  const [prefsGuardadas, setPrefsGuardadas] = useState(() => Boolean(localStorage.getItem(CLAVE_PREFS)));
 
   async function cargarPlan(p = prefs) {
     setError("");
     try {
-      const resultado = await api.obtenerPlanInversion(
-        usuario.id,
-        mes,
-        anio,
-        p.perfil,
-        p.horizonteMeses,
-        Number(p.fondo) || 0
-      );
+      const [resultado, resumenMes] = await Promise.all([
+        api.obtenerPlanInversion(usuario.id, mes, anio, p.perfil, p.horizonteMeses, Number(p.fondo) || 0),
+        // Solo sirve para avisar qué datos faltan: si falla, el plan igual se muestra.
+        api.obtenerResumen(usuario.id, mes, anio).catch(() => null),
+      ]);
       setPlan(resultado);
+      setResumen(resumenMes);
     } catch (err) {
       setError(err.message || "No se pudo calcular la recomendación de inversión");
     } finally {
@@ -97,6 +99,7 @@ export default function Inversion() {
   function enviar(e) {
     e.preventDefault();
     localStorage.setItem(CLAVE_PREFS, JSON.stringify(prefs));
+    setPrefsGuardadas(true);
     cargarPlan();
   }
 
@@ -116,9 +119,46 @@ export default function Inversion() {
   const opcionesConMonto = plan ? plan.opciones.filter((o) => o.porcentaje > 0) : [];
   const opcionesInformativas = plan ? plan.opciones.filter((o) => o.porcentaje === 0) : [];
 
+  function irAFondo() {
+    setAvisoCerrado(true);
+    const campo = document.getElementById("fondo");
+    campo?.scrollIntoView({ block: "center", behavior: "smooth" });
+    campo?.focus({ preventScroll: true });
+  }
+
+  // Lo que el plan necesita y todavía no está: sueldo y gastos del mes (si faltan, el plan no se puede armar).
+  const faltantes = [];
+  if (resumen) {
+    if (Number(resumen.ingresoMensual || 0) <= 0) {
+      faltantes.push({
+        clave: "ingreso",
+        texto: "Falta tu sueldo de este mes.",
+        boton: "Registrar sueldo",
+        accion: () => navigate("/dashboard#ingreso"),
+      });
+    }
+    if (Number(resumen.totalGastosFijos || 0) + Number(resumen.totalGastosVariables || 0) <= 0) {
+      faltantes.push({
+        clave: "gastos",
+        texto: "Faltan tus gastos fijos o variables del mes.",
+        boton: "Registrar gasto",
+        accion: () => navigate("/dashboard#gasto"),
+      });
+    }
+  }
+  if (!prefsGuardadas) {
+    faltantes.push({
+      clave: "fondo",
+      texto: "Cuéntanos cuánto tienes ahorrado para emergencias (si no tienes, deja 0).",
+      boton: "Completar",
+      accion: irAFondo,
+    });
+  }
+
   return (
     <>
       <BarraNavegacion paginaActiva="inversion" />
+      {!avisoCerrado && <AvisoDatosFaltantes faltantes={faltantes} onCerrar={() => setAvisoCerrado(true)} />}
       <div className="contenedor-dashboard">
         <header className="encabezado-dashboard">
           <h1>Inversión</h1>
@@ -280,7 +320,12 @@ export default function Inversion() {
           </>
         )}
 
-        <TablaInstrumentos perfil={prefs.perfil} />
+        <TablaInstrumentos
+          perfil={plan?.perfil ?? prefs.perfil}
+          horizonteMeses={plan?.horizonteMeses ?? prefs.horizonteMeses}
+          etapa={plan?.etapa ?? "SIN_DATOS"}
+          excedente={plan?.excedenteMensual ?? 0}
+        />
       </div>
     </>
   );

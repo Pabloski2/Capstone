@@ -1,0 +1,149 @@
+/* ---------- Recuadros que se pueden encoger ---------- */
+.tarjeta.plegable {
+  padding: 0;
+  align-self: start;
+}
+
+.tarjeta.plegable > h2.plegable-h {
+  margin: 0;
+  font-size: 16px;
+}
+
+.plegable-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  padding: 14px 18px;
+  border: none;
+  border-radius: var(--radio-m);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.plegable-textos {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.plegable-titulo {
+  font-family: var(--fuente-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+.plegable-resumen {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--tinta-suave);
+  overflow-wrap: anywhere;
+}
+
+.plegable-tab {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--navy-50);
+  color: var(--navy-700);
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+.plegable.abierto .plegable-tab {
+  transform: rotate(180deg);
+}
+
+.plegable-panel {
+  padding: 0 18px 18px;
+}
+
+.plegable-panel:not([hidden]) {
+  animation: aparece 0.25s ease both;
+}
+
+/* ---------- Tarjeta principal encogible (solo muestra el sueldo al encogerla) ---------- */
+.metrica-hero.hero-plegable {
+  padding-bottom: 46px;
+}
+
+.metrica-hero.hero-plegable.encogido {
+  padding: 20px 22px 42px;
+}
+
+.hero-sueldo .valor-metrica {
+  font-size: clamp(30px, 8.5vw, 42px);
+}
+
+.hero-tab {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 104px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.hero-tab-visual {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 26px;
+  border-radius: 14px 14px 0 0;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 15px;
+  line-height: 1;
+  transition: background 0.2s ease;
+}
+
+.hero-tab:hover .hero-tab-visual,
+.hero-tab:focus-visible .hero-tab-visual {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.hero-tab:focus-visible {
+  outline: none;
+}
+
+.hero-tab .hero-flecha {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.hero-plegable:not(.encogido) .hero-flecha {
+  transform: rotate(180deg);
+}
+
+/* ---------- Destello al llegar a un dato que faltaba (desde el aviso de Inversión) ---------- */
+.tarjeta.resaltar {
+  animation: resaltar 2.2s ease;
+}
+
+@keyframes resaltar {
+  0%,
+  100% {
+    box-shadow: var(--sombra-tarjeta);
+  }
+  20%,
+  70% {
+    box-shadow: 0 0 0 4px rgba(245, 165, 36, 0.55), var(--sombra-tarjeta);
+  }
+}
