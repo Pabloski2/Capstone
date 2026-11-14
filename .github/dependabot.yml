@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    directory: "/financialbeacon-backend"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "npm"
+    directory: "/financialbeacon-frontend"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/financialbeacon-backend"
+    schedule:
+      interval: "weekly"

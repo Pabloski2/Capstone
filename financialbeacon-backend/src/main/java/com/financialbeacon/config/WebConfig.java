@@ -1,6 +1,7 @@
 package com.financialbeacon.config;
 
 import com.financialbeacon.security.AuthInterceptor;
+import com.financialbeacon.security.RateLimitInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -14,17 +15,20 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    private final RateLimitInterceptor rateLimitInterceptor;
     private final AuthInterceptor authInterceptor;
     private final String[] origenesPermitidos;
 
-    public WebConfig(AuthInterceptor authInterceptor,
+    public WebConfig(RateLimitInterceptor rateLimitInterceptor, AuthInterceptor authInterceptor,
                      @Value("${app.cors.allowed-origins}") String[] origenesPermitidos) {
+        this.rateLimitInterceptor = rateLimitInterceptor;
         this.authInterceptor = authInterceptor;
         this.origenesPermitidos = origenesPermitidos;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(rateLimitInterceptor).addPathPatterns("/api/**");
         registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/api/**")
                 .excludePathPatterns("/api/auth/**");

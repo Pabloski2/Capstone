@@ -1,0 +1,39 @@
+MEJORAS DE CIBERSEGURIDAD - FINANCIAL BEACON
+=============================================
+
+COMO APLICARLAS (opcion simple)
+1. Descomprime este ZIP DENTRO de la carpeta raiz de tu proyecto
+   (la que contiene financialbeacon-backend y financialbeacon-frontend).
+2. Cuando Windows pregunte, elige "Reemplazar los archivos".
+3. Sube los cambios:
+
+   git add -A
+   git commit -m "Mejoras de ciberseguridad: rate limit, cabeceras, politica de contrasenas, CSP"
+   git push
+
+   Railway volvera a desplegar el backend solo.
+
+4. Compila el APK nuevo (sube versionCode antes):
+
+   cd financialbeacon-frontend
+   npm run android
+
+QUE CAMBIA
+- Backend: limite de peticiones por IP (RateLimitInterceptor), cabeceras de seguridad
+  (CabecerasSeguridadFilter), politica de contrasenas (PoliticaPassword) usada en
+  registro y restablecer contrasena, y pruebas unitarias nuevas.
+- Frontend: CSP solo al compilar (vite.config.js).
+- Android: allowBackup="false" y usesCleartextTraffic="false".
+- GitHub: .github/dependabot.yml para alertas de dependencias.
+
+DESPUES DE DESPLEGAR, COMPRUEBA
+1. https://capstone-production-23ad8491.up.railway.app/health sigue mostrando ok.
+2. Registrate con la contrasena 12345678: debe rechazarla con un mensaje.
+3. En el APK nuevo, inicia sesion: si la pantalla queda en blanco, la CSP bloqueo algo
+   (revisa la consola en chrome://inspect).
+
+PENDIENTE MANUAL (no se puede automatizar aqui)
+- Actualizar Spring Boot: en financialbeacon-backend/pom.xml cambia la version del
+  <parent> spring-boot-starter-parent (hoy 3.3.4) a la ultima estable (start.spring.io),
+  ejecuta "mvn test" y despliega.
+- En GitHub: Settings > Code security > activar Secret scanning y Dependabot alerts.

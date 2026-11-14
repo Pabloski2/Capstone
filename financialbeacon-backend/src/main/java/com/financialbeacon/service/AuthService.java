@@ -9,6 +9,7 @@ import com.financialbeacon.repository.UserRepository;
 import com.financialbeacon.security.JwtService;
 import com.financialbeacon.security.LoginAttemptLimiter;
 import com.financialbeacon.util.Correo;
+import com.financialbeacon.util.PoliticaPassword;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,7 @@ public class AuthService {
         if (req.password().getBytes(StandardCharsets.UTF_8).length > MAX_BYTES_PASSWORD) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "La contraseña es demasiado larga");
         }
+        PoliticaPassword.validar(req.password(), req.email());
         String email = Correo.normalizar(req.email());
         if (userRepository.findByEmail(email).isPresent()) {
             throw new ApiException(HttpStatus.CONFLICT, "El correo ya está registrado");

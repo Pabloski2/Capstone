@@ -7,6 +7,7 @@ import com.financialbeacon.repository.RecuperacionPasswordRepository;
 import com.financialbeacon.repository.UserRepository;
 import com.financialbeacon.util.CodigoRecuperacion;
 import com.financialbeacon.util.Correo;
+import com.financialbeacon.util.PoliticaPassword;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -90,6 +91,7 @@ public class RecuperacionService {
         if (nuevaPassword.getBytes(StandardCharsets.UTF_8).length > MAX_BYTES_PASSWORD) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "La contraseña es demasiado larga");
         }
+        PoliticaPassword.validar(nuevaPassword, emailCrudo);
         String email = Correo.normalizar(emailCrudo);
         Instant ahora = Instant.now();
 
