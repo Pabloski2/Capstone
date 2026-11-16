@@ -1,11 +1,10 @@
 # Política de privacidad de Financial Beacon
 
-> **Plantilla.** Completa los campos entre [corchetes] y haz que un asesor legal la revise antes de publicarla. Debe estar en una URL pública para Google Play y App Store.
 
-Última actualización: [fecha]
+Última actualización: [12/11/2026]
 
 ## Quién es responsable
-[Tu nombre o el de tu equipo], contacto: [correo de contacto].
+[Pablo Pizarro Navia], contacto: [contacto.financialbeacon@gmaul.com].
 
 ## Qué datos recopilamos
 - **Cuenta:** nombre, correo electrónico y contraseña (la contraseña se guarda cifrada con hash; nadie puede verla).
@@ -20,13 +19,13 @@ No pedimos acceso a tus cuentas bancarias, contactos, ubicación, cámara ni mic
 Para identificarte, enviarte códigos de recuperación y responder tus solicitudes de soporte por correo, y para mostrarte tu resumen mensual, recomendaciones de ahorro, estrategia de pago de deudas y orientación de inversión. No vendemos ni compartimos tus datos con terceros con fines publicitarios.
 
 ## Dónde se guardan
-En los servidores de [proveedor de hosting y país], con conexión cifrada (HTTPS).
+En los servidores de [railway], con conexión cifrada (HTTPS).
 
 ## Información de inversión
 El contenido sobre inversión es educativo. No constituye asesoría financiera ni una recomendación personalizada.
 
 ## Tus derechos
-Puedes eliminar tu cuenta y todos tus datos en cualquier momento desde la app: **Mi cuenta y privacidad > Eliminar mi cuenta**. Para consultas, acceso o corrección de tus datos, escríbenos a [correo de contacto].
+Puedes eliminar tu cuenta y todos tus datos en cualquier momento desde la app: **Mi cuenta y privacidad > Eliminar mi cuenta**. Para consultas, acceso o corrección de tus datos, escríbenos a [contacto.financialbeacon@gmaul.com].
 
 ## Cambios
 Si modificamos esta política, publicaremos la nueva versión en esta página con su fecha.
