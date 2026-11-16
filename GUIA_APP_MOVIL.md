@@ -20,7 +20,7 @@ Necesitas un servicio que ejecute Docker (Render, Railway, Fly.io…) y una base
 | `SOPORTE_EMAIL` | opcional; bandeja que recibe las solicitudes de soporte (por defecto, `MAIL_FROM`) |
 | `CORS_ORIGINS` | opcional; por defecto acepta la app móvil |
 
-3. Comprueba que `https://TU-BACKEND/health` responde `{"estado":"ok"}`.
+3. Comprueba que `https://BACKEND/health` responde `{"estado":"ok"}`.
 
 ### Correo (recuperación de contraseña y soporte)
 
@@ -53,7 +53,7 @@ Necesitas **Node 22+** y **Android Studio** (incluye el JDK y el SDK de Android)
 
 ```bash
 cd financialbeacon-frontend
-cp .env.example .env.production     # edita VITE_API_URL: https://tu-backend/api
+cp .env.example .env.production    
 npm install
 npm run android                     # compila, sincroniza y abre Android Studio
 ```
@@ -70,7 +70,7 @@ Cada vez que cambies el frontend, vuelve a correr `npm run android`. Para una nu
 ## 3. Probar en desarrollo (sin publicar)
 
 - Backend: `mvn spring-boot:run` (usa H2 en `./data`).
-- Frontend: `npm run dev` y abre `http://IP-DE-TU-PC:5173` desde el celular en la misma red.
+- Frontend: `npm run dev` y abre `http://IP-DE-PC:5173` desde el celular en la misma red.
 
 ## Para publicar en Google Play
 
